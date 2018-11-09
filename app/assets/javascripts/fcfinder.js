@@ -1,25 +1,25 @@
 ;(function($){
     $.fn.fcFinder = function(opts) {
 
-        //Ana Seçiciler
+        //Main Selectors
         var fcfinder = $(this);
         var fcfinder_selector = fcfinder.selector;
         var $body = $("body");
 
-        //Selector Ayarı
+        //Selector Setting
         if(fcfinder_selector!="#fcfinder"){
             $(this).css({"margin":"0","padding":"0","display": "block","height": "100%","width": "100%"}).append('<div id="fcfinder"></div>');
             fcfinder = fcfinder.find("#fcfinder");
             fcfinder_selector = fcfinder.selector
         }
 
-        // Varsayılan Metinler
+        // Default Texts
         var i18n = {
             empty_dir               :   'Directorio vacío',
             empty_file              :   'Archivo vacío',
             loading                 :   'Cargando...',
-            file_size	            :	'Tamaño del archivo',
-            file_name           	:	'Nombre del archivo',
+            file_size	            :	'Tamaño',
+            file_name           	:	'Nombre',
             file_cdate	            :	'Creación',
             faild_process	        :	'Error al procesar',
             access_not_head		    :	'Acceso denegado',
@@ -45,7 +45,7 @@
                 rename_error	        :	'Error al cambiar nombre: "{0}".',
                 edit_error	            :	'Error al editar.',
                 delete_error_0	        :	'El archivo no se puede eliminar, porque no es accesible.',
-                delete_error_1	        :  	'Erro al eliminar: "{0}".',
+                delete_error_1	        :  	'Error al eliminar: "{0}".',
                 new_directory_error_1	:	'El Archivo/Directorio ya ha sido utilizado',
                 new_directory_error_0	:	'Error en el nuevo directorio: "{0}".'
             },
@@ -71,8 +71,8 @@
                 ok	                    :	'OK',
                 close	                :	'Cerrar',
                 delete	                :	'Eliminar',
-                delete_h	            :	'{0} Eliminar',
-                delete_content	        :	'{0} ¿Estás seguro de que deseas eliminar de forma permanente?',
+                delete_h	            :	'Eliminar {0}',
+                delete_content	        :	'¿Estás seguro de que deseas eliminar de forma permanente {0} ?',
                 settings_h	            :	'Ajustes',
                 settings_icon_view	    :	'Vista de iconos',
                 settings_list_view	    :	'Vista de lista',
@@ -141,13 +141,13 @@
         };
 
 
-        //Dil Seçimi
+        //Language selection
         if (typeof(opts.i18n)=="object"){
             opts.i18n = fnc.merge_options(i18n,opts.i18n);
         }else {opts.i18n = i18n; }
 
 
-        //Cookies Objesi
+        //Cookies Object
         var Cookies = {
             setCookie : function (cname, cvalue, exdays) {
                 var d = new Date();
@@ -170,7 +170,7 @@
         };
 
 
-        //Sabit Fonksiyonlar Objesi
+        //Fixed Functions Object
         var fnc =   {
             ajax_fnc    :   {
 
@@ -282,7 +282,7 @@
 
 
 
-        // Cookies Tanımlamaları
+        // Cookies Descriptions
         Cookies.getCookie("FCFINDER_size_show")==""?Cookies.setCookie("FCFINDER_size_show","false",60*60*24*365):'';
         Cookies.getCookie("FCFINDER_date_show")==""?Cookies.setCookie("FCFINDER_date_show","false",60*60*24*365):'';
         Cookies.getCookie("FCFINDER_sortable")==""?Cookies.setCookie("FCFINDER_sortable","kind",60*60*24*365):'';
@@ -290,7 +290,7 @@
 
 
 
-        //HTML'yi Yükle
+        //Upload HTML
 	fcfinder.append('<div class="left"><div id="all_folders">'+
         '<ul class="folders">'+
         '<li><a><span class="folder">'+opts.i18n.loading+'<span class="load"></span></span>'+
@@ -350,7 +350,7 @@
         '<div class="clear"></div>'+
         '<ul class="bottom">'+opts.i18n.loading+'<span class="load"></span></ul>');
 
-        //Görünüm Tipini Seç
+        //Select View Type
         if (Cookies.getCookie("FCFINDER_view_type")=="icon"){
             fcfinder.find(".right ul.widget li a.icon_view").addClass("passive");
             fcfinder.find(".right ul.wrapper").addClass("icon_view");
@@ -362,22 +362,22 @@
 
 
 
-        //Dosya Boyutu ve Tarihi Görünüyormu
+        //View File Size and Date
         var is_show_size = Cookies.getCookie("FCFINDER_size_show")=="true"?" style=\"display:block;\"":"";
         var is_show_date = Cookies.getCookie("FCFINDER_date_show")=="true"?" style=\"display:block;\"":"";
 
 
 
 
-        //Çok Kullanılan Elementler
+        //Commonly Used Elements
         var ul_folders = fcfinder.children(".left").children("#all_folders").children("ul.folders");
         var ul_wrapper = fcfinder.children(".right").children("ul.wrapper");
 
 
 
-        //Dosyaları Yükle
+        //Upload Files
         $.ajax({url:opts.url,dataType:'json',type:'POST',success:function(_data) {
-            //İzin Yoksa Hata Ver
+            //Give Error if Not Allowed
             if (_data == "Access not allowed!") {
 
                 fnc.prepend_dialog(opts.i18n.access_not_head,opts.i18n.access_not_content,{type:"p",dialog_class:'noclose danger',scope_class:'noclose'});
@@ -386,7 +386,7 @@
                 fcfinder.find("ul.bottom").html("");
             }
             else{
-                //İzin Varsa Dosyaları Yükle
+                //Upload Files If Allowed
                 if (fcfinder.find("ul.bottom li[data-path='fcdir:/']").size()===0){
                     fcfinder.find("ul.bottom").html("").append('<li data-path="fcdir:/">'+opts.i18n.bottom_file.format(_data[1],_data[2])+'</li>');}
                 var data = _data[0];
@@ -430,7 +430,7 @@
 
 
 
-        //Yükleme İnputu Seçilince Formu Submit Et
+        //Upload Form
         $body.on("change",fcfinder_selector+" input.upload_field",function(){
             fcfinder.find("input[name='fcfinder[path]']").val(fcfinder.find(".left #all_folders ul li a.active").attr("href"));
             $(this).closest('form').trigger('submit');
@@ -439,7 +439,7 @@
 
 
 
-        //Form Submit Ediliyor
+        //Form Submitted to Upload File
         $body.on("submit",fcfinder_selector+" form#file_upload",function(){
             var formData = new FormData(this);
             $.ajax({url:opts.url,dataType:'json',processData: false,contentType: false,type:'POST',data:formData,
@@ -494,8 +494,7 @@
             return false;
         });
 
-
-        //Dosyalar Çift Tıklandığında (Seçilme İşlemi)
+        // Double-Clicking Files (Selection Process)
         $body.on("dblclick",fcfinder_selector+" .right ul.wrapper li div",function(){
             var path = $(this).attr("data-path");
             if (fcfinder.find(".left #all_folders ul.folders li a[href='"+path+"']").size()>0){
@@ -531,7 +530,7 @@
 
 
 
-        //Klasör Ağacından Klasör Seçildiğinde
+        //When Folder Folder is selected
         $body.on("click",fcfinder_selector+" ul.folders a",function(){
             var ths = $(this);
             var url = ths.attr("href");
@@ -615,7 +614,7 @@
         });
 
 
-        //Dosyaya yada Klasöre Tıklandığında
+        //When the file or folder is clicked
         $body.on("click",fcfinder_selector+" .right ul.wrapper li div",function(){
             var ths = $(this);
             if (ths.attr("class")!="list_head"){
@@ -644,7 +643,7 @@
 
         });
 
-        //Klasör Ağacında Artı yada Eksiye Basıldığında
+        //When the Plus or Less is Pressed in the Folder Tree
         $body.on("click",fcfinder_selector+' .left #all_folders ul.folders li a span.braca',function(){
 
             var ths = $(this);
@@ -679,7 +678,7 @@
         });
 
 
-        //Dosya Boyutu Göster / Gizle
+        //Show / Hide File Size
         $body.on("click",fcfinder_selector+" .right ul.widget li a.show_size",function(){
             if (Cookies.getCookie('FCFINDER_view_type')=="icon"){
                 var show = $(this).attr("data-show");
@@ -702,7 +701,7 @@
         });
 
 
-        //Dosya Tarihi Göster / Gizle
+        // Show / Hide Date of File
         $body.on("click",fcfinder_selector+" .right ul.widget li a.show_date",function(){
             if (Cookies.getCookie('FCFINDER_view_type')=="icon"){
                 var show = $(this).attr("data-show");
@@ -725,7 +724,7 @@
             return false;
         });
 
-        //Yeni Klasör Oluşturma
+        //Create a New Folder
         $body.on("click",fcfinder_selector+" .right ul.widget li a.new_folder",function(){
             var dir = fcfinder.find(".right ul.wrapper li[data-show='true']");
             if (dir.html()==opts.i18n.empty_dir){dir.html("");}
@@ -741,7 +740,7 @@
             return false;
         });
 
-        //Sayfa Yenileme
+        //Page Renewal
         $body.on("click",fcfinder_selector+" .right ul.widget li a.refresh",function(){
             var left_wrapper = fcfinder.find(".left #all_folders ul li a.active");
             var right_wrapper =  fcfinder.find(".right  ul.wrapper li.file_wrapper[data-show='true']");
@@ -781,7 +780,7 @@
 
 
 
-        //Dosya İndirme
+        //File Downloads
         $body.on("click",fcfinder_selector+" .right ul.widget li a.download",function(){
             if (!$(this).hasClass("passive")){
                 var path = fcfinder.find(".right ul.wrapper li div.active").attr("data-path").replace("fcdir:/","");
@@ -805,7 +804,7 @@
 
 
 
-        //Üst Dizin'e Çıkma
+        //Top Index
         $body.on("click",fcfinder_selector+" .right ul.widget li a.up_folder",function(){
             if (!$(this).hasClass("passive")){
                 var up_path = fcfinder.find(".left  #all_folders ul.folders li a.active").attr("href").split("/");
@@ -829,7 +828,7 @@
 
 
 
-        //Dosya Bilgilerini Göster
+        //Show File Information
         $body.on("click",fcfinder_selector+" .right ul.widget li a.info",function(){
             if (!$(this).hasClass("passive")){
                 var file = fcfinder.find(".right ul.wrapper li div.active");
@@ -866,7 +865,7 @@
         });
 
 
-        //Dosyayı Önizle
+        //Preview File
         $body.on("click",fcfinder_selector+" .right ul.widget li a.preview",function(){
             if (!$(this).hasClass("passive")){
                 var file = fcfinder.find(".right ul.wrapper li div.active");
@@ -915,7 +914,7 @@
             return false;
         });
 
-        //Dosya Kopyala
+        //Copy File
         $body.on("click",fcfinder_selector+" .right ul.widget li a.copy",function(){
             if (!$(this).hasClass("passive")){
                 var file = fcfinder.find(".right ul.wrapper li div.active");
@@ -928,7 +927,7 @@
         });
 
 
-        //Dosya Kesme
+        //File Cutting
         $body.on("click",fcfinder_selector+" .right ul.widget li a.cut",function(){
             if (!$(this).hasClass("passive")){
                 fcfinder.find(".right ul.wrapper li div").removeClass("cutting");
@@ -942,7 +941,7 @@
             return false;
         });
 
-        //Dosya Yapıştırma
+        //Pasting Files
         $body.on("click",fcfinder_selector+" .right ul.widget li a.paste",function(){
             var $ths = $(this);
             if (!$ths.hasClass("passive")){
@@ -992,7 +991,7 @@
         });
 
 
-        //Dosya Yapıştırma (Aynı İsimde Dosya Değiştirme)
+        //File Paste (Changing Files with the Same Name)
         $body.on("click",fcfinder_selector+" .dialog a.file_copy_ok",function(){
             var data = fcfinder.find(".dialog input[name='data_input']").val();
             $.ajax({
@@ -1010,7 +1009,7 @@
 
 
 
-        //Dosya Kopyasını Oluşturma
+        //Creating a File Copy
         $body.on("click",fcfinder_selector+" .right ul.widget li a.duplicate",function(){
             if (!$(this).hasClass("passive")){
                 var file_path = fcfinder.find(".right ul.wrapper li div.active").attr("data-path");
@@ -1023,7 +1022,7 @@
                             fcfinder.find(".right ul.widget li a.refresh").trigger("click");
                         }else
                         {
-                            //Kopyası Oluşmadı
+                            //No copies occurred
                             fnc.prepend_dialog(opts.i18n.faild_process,opts.i18n.error.duplicate_error.format(data[2]),{type:"p",dialog_class:'danger'});
                         }
                     }});
@@ -1034,7 +1033,7 @@
 
 
 
-        //Dosya Yeniden Adlandırma
+        //File Renaming
         $body.on("click",fcfinder_selector+" .right ul.widget li a.rename",function(){
             if (!$(this).hasClass("passive")){
                 var file = fcfinder.find(".right ul.wrapper li div.active");
@@ -1057,7 +1056,7 @@
 
 
 
-        //Dosya Yeniden Adlandırma Form Submit
+        //File Rename Form Submit
         $body.on("submit",fcfinder_selector+" #file_rename",function(){
             var data = $(this).serialize();
             $.ajax({
@@ -1073,7 +1072,7 @@
         });
 
 
-        //Dosya Düzenleme (pixlr)
+        //Editing Files (pixlr)
         $body.on("click",fcfinder_selector+" .right ul.widget li a.edit",function(){
             if (!$(this).hasClass("passive")){
                 var data = "fcfinder[type]=edit_file&fcfinder[file_path]="+fcfinder.find(".right ul.wrapper li div.active").attr("data-path");
@@ -1092,7 +1091,7 @@
 
 
 
-        //Dosya Silme
+        //File Deletion
         $body.on("click",fcfinder_selector+" .right ul.widget li a.delete",function(){
             if (!$(this).hasClass("passive")){
                 var file = fcfinder.find(".right ul.wrapper li div.active");
@@ -1112,7 +1111,7 @@
         });
 
 
-        //Dosya Silme Onayı
+        //File Delete Confirmation
         $body.on("click",fcfinder_selector+" .dialog a.file_delete",function(){
             var file_path = fcfinder.find("form#delete_file_form input[name='file_path']").val();
             var data = "fcfinder[type]=delete&fcfinder[file_path]="+file_path;
@@ -1136,7 +1135,7 @@
 
 
 
-        //Ada Göre Dosya Listeleme
+        //File Listing by Name
         $body.on("click",fcfinder_selector+" .right ul.widget li a.name_sorter",function(){
             if (!$(this).hasClass("passive")){
                 var $ul = fcfinder.find(".right ul.wrapper li.file_wrapper[data-show='true']"),
@@ -1170,7 +1169,7 @@
 
 
 
-        //Boyuta Göre Dosya Listeleme
+        //List Files by Size
         $body.on("click",fcfinder_selector+" .right ul.widget li a.size_sorter",function(){
             if (!$(this).hasClass("passive")){
                 var $ul = fcfinder.find(".right ul.wrapper li.file_wrapper[data-show='true']"),
@@ -1204,7 +1203,7 @@
 
 
 
-        //Tarihine Göre Dosya Listeleme
+        //List Files by Date
         $body.on("click",fcfinder_selector+" .right ul.widget li a.date_sorter",function(){
             if (!$(this).hasClass("passive")){
                 var $ul = fcfinder.find(".right ul.wrapper li.file_wrapper[data-show='true']"),
@@ -1236,7 +1235,7 @@
             return false;
         });
 
-        //Türüne Göre Dosya Listeleme
+        //File Listing by Type
         $body.on("click",fcfinder_selector+" .right ul.widget li a.kind_sorter",function(){
             if (!$(this).hasClass("passive")){
                 var $ul = fcfinder.find(".right ul.wrapper li.file_wrapper[data-show='true']"),
@@ -1271,7 +1270,7 @@
 
 
 
-        //Simge Görünümü
+        //Icon View
         $body.on("click",fcfinder_selector+" .right ul.widget li a.icon_view",function(){
             if (!$(this).hasClass("passive")) {
                 fcfinder.find(".right ul.wrapper").removeClass("list_view").addClass("icon_view");
@@ -1283,7 +1282,7 @@
             return false;
         });
 
-        //Liste Görünümü
+        //List View
         $body.on("click",fcfinder_selector+" .right ul.widget li a.list_view",function(){
             if (!$(this).hasClass("passive")) {
                 fcfinder.find(".right ul.wrapper li[data-show='true']").prepend('<div class="list_head"><span class="file_name">'+opts.i18n.file_name+'</span><span class="file_size">'+opts.i18n.file_size+'</span><span class="file_date">'+opts.i18n.file_cdate+'</span></div>');
@@ -1300,7 +1299,7 @@
 
 
 
-        //Ayarlar Menüsü
+        //Settings Menu
         $body.on("click",fcfinder_selector+" .right ul.widget li a.settings",function(){
             if (!$(this).hasClass("passive")){
                 var list_type = Cookies.getCookie("FCFINDER_view_type");
@@ -1333,17 +1332,17 @@
         });
 
 
-        //Ayarlar -> Tarih Göster İnputu Seçilirse
+        //Settings -> Show Date Inputu Selected
         $body.on("change",fcfinder_selector+" .dialog div.content div label input[name='date_show']",function(){
             fcfinder.find(".right ul.widget li a.show_date").trigger('click');
         });
 
-        //Ayarlar -> Boyut Göster İnputu Seçilirse
+        //Settings -> Show Size Inputu If Selected
         $body.on("change",fcfinder_selector+" .dialog div.content div label input[name='size_show']",function(){
             fcfinder.find(".right ul.widget li a.show_size").trigger('click');
         });
 
-        //Ayarlar -> Görünüm Tipi Seçimi (Liste|Simge)
+        //Settings -> Display Type Selection (List | Icon)
         $body.on("change",fcfinder_selector+" .dialog div.content div label input[name='view']",function(){
             var view_type = $(this).val();
             if (view_type=="icon"){ fcfinder.find(".right ul.widget li a.icon_view").trigger("click"); }
@@ -1353,7 +1352,7 @@
 
 
 
-        //Sıralama Menüsü
+        //Sort Menu
         $body.on("click",fcfinder_selector+" .right ul.widget li a.sort",function(){
             if (!$(this).hasClass("passive")){
                 var sortable_type = Cookies.getCookie("FCFINDER_sortable");
@@ -1383,7 +1382,7 @@
         });
 
 
-        //Sıralama -> Sıralama Yöntemi Seçimi (İsim|Botur|Tarih|Tür)
+        //Sorting -> Sorting Method Selection (Name | Botur | History | Genre)
         $body.on("change",fcfinder_selector+" .dialog div.content div label input[name='sortable']",function(){
             var sort_type = $(this).val();
             Cookies.setCookie("FCFINDER_sortable",sort_type,60*60*24*365);
@@ -1393,7 +1392,7 @@
 
 
 
-        //Klavye Kontrolleri
+        //Keyboard Controls
         $(document).keyup(function(e) {
             //ESC Press
             if (e.keyCode == 27) {
@@ -1418,7 +1417,7 @@
 
         });
 
-        //Hedef Dışı Tıklama Kontrolleri
+        //Off-Target Click Controls
         $("*").click(function(e){
 
             if (!$(e.target).is(fcfinder_selector+" ul#ctxMenu") && !$(e.target).is(fcfinder_selector+" ul#ctxMenu *") )
@@ -1491,7 +1490,7 @@
         });
 
 
-        //Sağ Tıklama Ayarı
+        //Right Click Setting
         $("*").contextmenu(function(e){
             fcfinder.find("#ctxMenu").remove();
             if (!$(e.target).is(fcfinder_selector+" .right ul.wrapper li div.list_head") && !$(e.target).is(fcfinder_selector+" .right ul.wrapper li div.list_head *")){
@@ -1583,7 +1582,7 @@
 
 
 
-        //Sağ Tıklama Menü Link Seçimi
+        //Right-Click Menu Link Selection
         $body.on("click",fcfinder_selector+" ul#ctxMenu li a",function(){
             if ($(this).attr("class")=="none"){ return false; }else {
                 fcfinder.find("ul#ctxMenu").remove();
@@ -1620,7 +1619,7 @@
 
 
 
-        //Yeni Klasör Form Submit
+        //Submit New Folder Form
         $body.on("submit",fcfinder_selector+" #new_directory",function(){
             var data = $(this).serialize();
             $.ajax({
@@ -1643,7 +1642,7 @@
             return false;
         });
 
-        //Dialog Kapatma Butonu
+        //Dialog Off Button
         $body.on("click",fcfinder_selector+" .dialog a.close",function(){
             fcfinder.find(".dialog").fadeOut(300, function(){ fcfinder.find(".dialog-scope , .dialog").remove(); });
             fnc.fcfinderresize();
@@ -1653,7 +1652,7 @@
 
 
 
-        //Hakkında Sayfası
+        //About Page
         $body.on("click",fcfinder_selector+" .right ul.widget li a.about",function(){
             return false;
         });
@@ -1661,11 +1660,11 @@
 
 
 
-        //Görüntü Yükseklik Genişlik Ayarları
+        //Pattern Height Width Settings
         fnc.fcfinderresize();
         $(window).resize(function(){ fnc.fcfinderresize(); fcfinder.find(".dialog").ortala(); });
 
-        //Tıklama Efekti Ayarı
+        //Click Effect Setting
         fnc.ripleClick(fcfinder_selector+" .right ul.widget li a ,"+fcfinder_selector+" .right ul.wrapper li div ,"+fcfinder_selector+" .left #all_folders ul.folders li a span.folder");
 
 
@@ -1673,7 +1672,7 @@
 
 
 
-        //String Objesi Metod Ekleme
+        //String Object Method Insertion
         String.prototype.format = function() {
             var formatted = this;
             for (var i = 0; i < arguments.length; i++) {
@@ -1683,7 +1682,7 @@
             return formatted;
         };
 
-        //$ Genişletme Yeni Metod Ekleme
+        //$ Expanding New Methodology
         $().__proto__.ortala = function(){
             this.css({
                 left: ($(window).width()/2)-(this.width()/2),
