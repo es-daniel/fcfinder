@@ -388,7 +388,11 @@ module Fcfinder
             end
           end
         else
-          all_file[file.split('/').last] = {:file=>file, :path => set_path(file), :url => get_url(set_path(file)), :type => set_type(MIME::Types.type_for(file).first.content_type), :size_2 => File.size(file), :size => format_mb(File.size(file)), :ctime => File.ctime(file).strftime('%d/%m/%Y %H:%M')}
+          all_file[file.split('/').last] = { file: file, path: set_path(file), url: get_url(set_path(file)),
+                                             type: set_type(MIME::Types.type_for(file).first.content_type),
+                                             size_2: File.size(file), size: format_mb(File.size(file)),
+                                             ctime: File.ctime(file).strftime('%d/%m/%Y %H:%M'),
+                                             thumb_url: thumb_url(set_path(file))}
         end
       end
       { :directory => all_dir, :file => all_file }
@@ -411,7 +415,11 @@ module Fcfinder
 
 
     def get_url(path)
-      path.chomp('/').sub('fcdir:',File.join(@host_url,@main_folder))
+      path.chomp('/').sub('fcdir:',File.join(@host_url,"uploads/#{@main_folder}"))
+    end
+
+    def thumb_url(path)
+      path.chomp('/').sub('fcdir:',File.join(@host_url,"uploads/#{@main_folder}/.thumbs"))
     end
 
 
