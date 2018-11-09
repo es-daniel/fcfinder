@@ -1506,9 +1506,6 @@
 
                     var x = parseInt(e.pageX)- 190;
                     var y = parseInt(e.pageY) - 20;
-                    console.log(e.pageX);
-                    console.log(e.pageY);
-
                     var d_x = $('#wrapper').width();
                     var d_y = $('#wrapper').width();
                     var ctxW_x = ctxMenu.width();
@@ -1517,7 +1514,7 @@
                     if (x >= d_x - ctxW_x - 50) { x = d_x - ctxW_x - 50; }
                     if (y >= d_y - ctxH_y - 40) { y = d_y - ctxH_y - 40;}
 
-        
+
                     ctxMenu.html('<li><a class="none">' + file.attr("data-name") + '</a></li><li class="hr">&nbsp;</li>'+
                     '<li><a href="fcfinder:open">'+opts.i18n.contextmenu.file_open+'</a></li>'+
                     '<li><a href="fcfinder:preview">'+opts.i18n.contextmenu.file_preview+'</a></li>'+
@@ -1538,10 +1535,10 @@
 
                     fcfinder.prepend('<ul id="ctxMenu"></ul>');
                     var ctxMenu = fcfinder.find("#ctxMenu");
-                    var x = parseInt(e.pageX) - 20;
+                    var x = parseInt(e.pageX) - 190;
                     var y = parseInt(e.pageY) - 30;
-                    var d_x = $(document).width();
-                    var d_y = $(document).height();
+                    var d_x = $('#wrapper').width();
+                    var d_y = $('#wrapper').width();
                     var ctxW_x = ctxMenu.width();
                     var ctxH_y = ctxMenu.height();
 
