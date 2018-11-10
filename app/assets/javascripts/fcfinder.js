@@ -231,7 +231,6 @@
                 else{var element =type;}
 
                 $.each(data.file,function(key,val){
-                  console.log(val)
                     var _style_type = "";
                     if (val.type == "image_file") {
                         _style_type = "style=\"background:url('//"+val.thumb_url+"') no-repeat center 5px / 65% 60px \"";

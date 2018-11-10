@@ -117,7 +117,7 @@ module Fcfinder
         %w(false -1)
       else
         if Dir.mkdir(create_file_path) && Dir.mkdir(create_file_thumbs)
-          ['true', {:top_dir => path, :path => set_path(create_file_path)}]
+          ['true', { top_dir: path, path => set_path(create_file_path)}]
         else
           #0 => Herhangibir Hata var Dosya Oluşmadı
           %w(false 0)
@@ -168,7 +168,8 @@ module Fcfinder
       thumbs = ''
       thumbs = opt[:target].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs') if opt[:type] == :cut || opt[:type] == :copy || opt[:type] == :rename
       thumbs = opt[:file_path].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs') if opt[:type] == :duplicate || opt[:type] == :duplicate2
-      if File.directory?(opt[:file])
+
+      if !File.file?(opt[:file])
         FileUtils.cp_r(opt[:file].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs'),thumbs) if opt[:type ] == :copy
         FileUtils.mv(opt[:file].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs'),thumbs) if opt[:type ] == :cut
         FileUtils.cp_r(thumbs, opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')+'/'+opt[:file_name]+' copy 1'+opt[:extension]) if opt[:type ] == :duplicate
@@ -321,7 +322,7 @@ module Fcfinder
           result = %w(false)
         end
       rescue Exception => e
-        result = ['false', '-1',e.to_s]
+        result = ['false', '-1', e.to_s]
       end
       result
     end
