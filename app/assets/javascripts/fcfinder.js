@@ -42,7 +42,8 @@
                 copy_error	            :	'Error de copia: "{0}".',
                 replace_error           :   'Error de remplazo: "{0}".',
                 duplicate_error	        :	'Error de duplicado: "{0}".',
-                rename_error	        :	'Error al cambiar nombre: "{0}".',
+                rename_error_1	        :	'Error al cambiar nombre: ',
+                rename_error_0	        :	'Error al cambiar nombre: "{0}".',
                 edit_error	            :	'Error al editar.',
                 delete_error_0	        :	'El archivo no se puede eliminar, porque no es accesible.',
                 delete_error_1	        :  	'Error al eliminar: "{0}".',
@@ -1066,8 +1067,17 @@
                     if (data[0]=="true"){
                         fcfinder.find(".right ul.widget li a.refresh").trigger("click");
                     }else {
-                        //Bir hata meydana geldi adı değiştirilemedi
-                        fnc.prepend_dialog(opts.i18n.faild_process,opts.i18n.error.rename_error.format(data[2]),{type:"p",dialog_class:'danger'});
+                        if (data[1] == "-1") {
+                            fnc.prepend_dialog(opts.i18n.faild_process, opts.i18n.error.rename_error_1 +
+                                opts.i18n.error.new_directory_error_1.toLowerCase() , { type: "p",
+                                dialog_class: 'danger'
+                            });
+                        } else {
+                            fnc.prepend_dialog(opts.i18n.faild_process, opts.i18n.error.rename_error_0.format(data[2]), {
+                                type: "p",
+                                dialog_class: 'danger'
+                            });
+                        }
                     }
                 }});
             return false;

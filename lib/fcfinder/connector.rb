@@ -113,8 +113,8 @@ module Fcfinder
       create_file_path = File.join(get_path(path),directory_name)
       create_file_thumbs = create_file_path.sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs')
       if File.exist?(create_file_path)
-        #-1 => Aynı İsimde Dosya Var Dosya Oluşmadı
-        %w(false -1)
+        #-1 => File Has File in Same Name
+        %w[false -1]
       else
         if Dir.mkdir(create_file_path) && Dir.mkdir(create_file_thumbs)
           ['true', { top_dir: path, path => set_path(create_file_path)}]
@@ -174,7 +174,7 @@ module Fcfinder
         FileUtils.mv(opt[:file].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs'),thumbs) if opt[:type ] == :cut
         FileUtils.cp_r(thumbs, opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')+'/'+opt[:file_name]+' copy 1'+opt[:extension]) if opt[:type ] == :duplicate
         FileUtils.cp_r(thumbs, opt[:new_file_path].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')) if opt[:type2] == :duplicate2
-        FileUtils.mv(thumbs, File.join(opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs'),opt[:file_name])) if opt[:type] == :rename
+        File.rename(thumbs, File.join(opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs'),opt[:file_name])) if opt[:type] == :rename
       else
         if %w(image/x-ms-bmp image/jpeg image/gif image/png).include?(MIME::Types.type_for(opt[:file]).first.content_type)
           unless File.exist?(thumbs)
@@ -190,7 +190,7 @@ module Fcfinder
           FileUtils.mv(opt[:file].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs'),thumbs) if opt[:type] == :cut
           FileUtils.cp_r(thumbs, opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')+'/'+opt[:file_name]+' copy 1'+opt[:extension]) if opt[:type] == :duplicate
           FileUtils.cp_r(thumbs, opt[:new_file_path].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')) if opt[:type] == :duplicate2
-          FileUtils.mv(thumbs, File.join(opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs'),opt[:file_name])) if opt[:type] == :rename
+          File.rename(thumbs, File.join(opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs'),opt[:file_name])) if opt[:type] == :rename
         end
       end
     end
@@ -223,7 +223,7 @@ module Fcfinder
         else
           #Kopyalama İşlemini Gerçekleştir
           FileUtils.cp_r(file,target)
-          thumbs({:file=>file, :target=>target, :type=>:copy})
+          thumbs(:file=>file, :target=>target, :type=>:copy)
           result = %w(true)
         end
       rescue Exception => e
@@ -238,7 +238,7 @@ module Fcfinder
         FileUtils.cp_r(file,target)
 
         #thumbs'a kopyasını gönder
-        thumbs({:file=>file, :target=>target, :type=>:copy})
+        thumbs(:file=>file, :target=>target, :type=>:copy)
         result = %w(true)
       rescue Exception => e
         result = ['false', '-1',e.to_s]
@@ -256,7 +256,7 @@ module Fcfinder
           #Kesme İşlemini Gerçekleştir
           FileUtils.mv(file,target)
           #thumbs'a kopyasını gönder
-          thumbs({:file=>file, :target=>target, :type=>:cut})
+          thumbs(:file=>file, :target=>target, :type=>:cut)
           result = %w(true)
         end
       rescue Exception => e
@@ -270,7 +270,7 @@ module Fcfinder
         #Kesme İşlemini Gerçekleştir
         FileUtils.mv(file,target)
         #thumbs'a kopyasını gönder
-        thumbs({:file=>file, :target=>target, :type=>:cut})
+        thumbs(:file=>file, :target=>target, :type=>:cut)
         result = %w(true)
       rescue Exception => e
         result = ['false', '-1',e.to_s]
@@ -289,7 +289,7 @@ module Fcfinder
         if reg_file.nil? && !File.exist?(folder_name+'/'+file_name+' copy 1'+extension)
           FileUtils.cp_r(file_path, folder_name+'/'+file_name+' copy 1'+extension)
           #thumbs dosyaları ekle
-          thumbs({:file_path=>file_path,:file=>file_path,:type=>:duplicate,:folder_name=>folder_name,:file_name=>file_name,:extension=>extension})
+          thumbs(:file_path=>file_path,:file=>file_path,:type=>:duplicate,:folder_name=>folder_name,:file_name=>file_name,:extension=>extension)
           result = %w(true)
         else
           #"file_name copy 1" şeklinde bir dosya adı var
@@ -300,7 +300,7 @@ module Fcfinder
           new_file_path = folder_name.chomp('/')+'/'+new_file_name
           FileUtils.cp_r(file_path, new_file_path)
           #thumbs'a kopyasını gönder
-          thumbs({:file_path=>file_path,:file=>file_path,:type=>:duplicate2,:new_file_path=>new_file_path})
+          thumbs(:file_path=>file_path,:file=>file_path,:type=>:duplicate2,:new_file_path=>new_file_path)
           result = %w(true)
         end
       rescue Exception => e
@@ -309,22 +309,29 @@ module Fcfinder
       result
     end
 
-    def file_rename(path,file_name)
+    def file_rename(path, file_name)
       begin
         if File.exist?(path)
           folder_name = path.chomp(path.split('/').last).chomp('/')
-          FileUtils.mv(path,folder_name+'/'+file_name)
-          #thumbs'a kopyasını gönder
-          thumbs({:file=>path,:target=>path,:type=>:rename,:folder_name=>folder_name,:file_name=>file_name})
-          result = %w(true)
+          file_dest = "#{folder_name}/#{file_name}"
+          return %w[false -1] if renamed_file_exist?(file_dest) && path.downcase != file_dest.downcase
+
+          File.rename(path,"#{folder_name}/#{file_name}")
+          #Send copy to # thumbs
+          thumbs(file: path, target: path, type: :rename, folder_name: folder_name, file_name: file_name )
+          result = %w[true]
         else
-          #return false Dosya Yok!
-          result = %w(false)
+          #return false No File!
+          result = %w[false]
         end
       rescue Exception => e
         result = ['false', '-1', e.to_s]
       end
       result
+    end
+
+    def renamed_file_exist?(new_file)
+      File.exist?(new_file)
     end
 
     def delete!(path)
