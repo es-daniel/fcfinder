@@ -344,7 +344,6 @@
         '<li><a href="fcfinder:kindsorter" title="'+opts.i18n.widget_menu.kind_sorter+'" class="kind_sorter">'+opts.i18n.widget_menu.kind_sorter+'</a></li>'+
         '</ul>'+
         '</div></li>'+
-        '<li><a href="fcfinder:settings" title="'+opts.i18n.widget_menu.about+'" class="about">'+opts.i18n.widget_menu.about+'</a></li>'+
         '</ul>'+
         '<ul class="wrapper">'+
         '<li>'+opts.i18n.loading+'<span class="load"></span></li>'+
