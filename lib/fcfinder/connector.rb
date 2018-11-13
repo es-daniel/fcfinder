@@ -353,22 +353,26 @@ module Fcfinder
     def upload(upload_files,path)
       begin
         image_mime_type = %w(image/x-ms-bmp image/jpeg image/gif image/png)
-        file_path,error_delete_file = [],[]
+        file_path,error_delete_file, not_uploaded = [],[],[]
         upload_files.each do |file|
           #dosya büyük
           return ['false', '0',format_mb(@max_file_size)] if file.tempfile.size > @max_file_size
           #format yok
           return ['false', '-1',@permission_mime.to_a] unless @permission_mime.has_key?(file.original_filename.split('.').last) || @permission_mime[file.original_filename.split('.').last]==file.content_type
-          file_path.push(File.join(path,file.original_filename)) if image_mime_type.include?(file.content_type)
-          error_delete_file.push(File.join(path,file.original_filename))
-          File.open(File.join(path,file.original_filename), 'wb')  do |f|
-            f.write(file.read)
+          new_file_path = File.join(path,file.original_filename)
+          file_path.push(new_file_path) if image_mime_type.include?(file.content_type)
+          error_delete_file.push(new_file_path)
+          if File.exist?(new_file_path)
+            not_uploaded.push(file.original_filename)
+          else
+            File.open(new_file_path, 'wb') do |f|
+              f.write(file.read)
+            end
           end
         end
-
         # resimleri yeniden boyutlandır
         image_resize(file_path)
-        result = %w(true)
+        result = ['true', 1, not_uploaded]
       rescue Exception => e
         error_delete_file.each do |file|
           FileUtils.rm_rf(file) unless File.size(file) > 0

@@ -48,7 +48,8 @@
                 delete_error_0	        :	'El archivo no se puede eliminar, porque no es accesible.',
                 delete_error_1	        :  	'Error al eliminar: "{0}".',
                 new_directory_error_1	:	'El Archivo/Directorio ya ha sido utilizado',
-                new_directory_error_0	:	'Error en el nuevo directorio: "{0}".'
+                new_directory_error_0	:	'Error en el nuevo directorio: "{0}".',
+                not_uploaded_files      :   'Los siguientes archivos: ({0}) no se subieron porque ya existen archivos con estos nombres'
             },
 
             dialog  :
@@ -472,8 +473,12 @@
                     return xhr;
                 },
                 success:function(data) {
-                    if (data[0]=="true"){
-                        fcfinder.find(".right ul.widget li a.refresh").trigger("click");
+                    if (data[0]==="true"){
+                        if (data[1]==1){
+                            fnc.prepend_dialog(opts.i18n.dialog.info_h, opts.i18n.error.not_uploaded_files.format(data[2].join(', ')),
+                                {type:"p",dialog_class:'warning'});
+                        }
+                        //fcfinder.find(".right ul.widget li a.refresh").trigger("click");
                     }else{
                         if (data[1]=="0"){
                             fnc.prepend_dialog(opts.i18n.faild_process,opts.i18n.error.large_file.format(data[2]),{type:"p",dialog_class:'danger'});
