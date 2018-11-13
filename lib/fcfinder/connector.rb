@@ -372,7 +372,7 @@ module Fcfinder
         end
         # resimleri yeniden boyutlandır
         image_resize(file_path)
-        result = ['true', 1, not_uploaded]
+        result = ['true', (not_uploaded.present? ? 1 : nil), not_uploaded]
       rescue Exception => e
         error_delete_file.each do |file|
           FileUtils.rm_rf(file) unless File.size(file) > 0

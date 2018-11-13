@@ -437,6 +437,7 @@
         $body.on("change",fcfinder_selector+" input.upload_field",function(){
             fcfinder.find("input[name='fcfinder[path]']").val(fcfinder.find(".left #all_folders ul li a.active").attr("href"));
             $(this).closest('form').trigger('submit');
+            $('form').trigger('reset');
         });
 
 
@@ -473,12 +474,12 @@
                     return xhr;
                 },
                 success:function(data) {
+                    fcfinder.find(".right ul.widget li a.refresh").trigger("click");
                     if (data[0]==="true"){
                         if (data[1]==1){
                             fnc.prepend_dialog(opts.i18n.dialog.info_h, opts.i18n.error.not_uploaded_files.format(data[2].join(', ')),
                                 {type:"p",dialog_class:'warning'});
                         }
-                        //fcfinder.find(".right ul.widget li a.refresh").trigger("click");
                     }else{
                         if (data[1]=="0"){
                             fnc.prepend_dialog(opts.i18n.faild_process,opts.i18n.error.large_file.format(data[2]),{type:"p",dialog_class:'danger'});
