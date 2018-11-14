@@ -233,6 +233,8 @@ module Fcfinder
 
     def copy!(file,target)
       begin
+        return %w(true) if file == "#{target}/#{file.split('/').last}"
+
         #Kopyalama İşlemini Gerçekleştir
         FileUtils.cp_r(file,target)
 
@@ -267,9 +269,11 @@ module Fcfinder
 
     def cut!(file,target)
       begin
+        return %w(true) if file == "#{target}/#{file.split('/').last}"
+        
         #Kesme İşlemini Gerçekleştir
         is_dir = File.directory?(file)
-        FileUtils.mv(file,target)
+        FileUtils.mv(file, target)
         #thumbs'a kopyasını gönder
         thumbs(file: file, target: target, type: :cut, dir?: is_dir)
         result = %w(true)
