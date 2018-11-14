@@ -168,8 +168,7 @@ module Fcfinder
       thumbs = ''
       thumbs = opt[:target].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs') if opt[:type] == :cut || opt[:type] == :copy || opt[:type] == :rename
       thumbs = opt[:file_path].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs') if opt[:type] == :duplicate || opt[:type] == :duplicate2
-
-      if !File.file?(opt[:file])
+      if opt[:dir?]
         FileUtils.cp_r(opt[:file].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs'),thumbs) if opt[:type ] == :copy
         FileUtils.mv(opt[:file].sub(@fcdir.chomp('/'),@fcdir.chomp('/')+'/.thumbs'),thumbs) if opt[:type ] == :cut
         FileUtils.cp_r(thumbs, opt[:folder_name].sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')+'/'+opt[:file_name]+' copy 1'+opt[:extension]) if opt[:type ] == :duplicate
@@ -223,7 +222,7 @@ module Fcfinder
         else
           #Kopyalama İşlemini Gerçekleştir
           FileUtils.cp_r(file,target)
-          thumbs(:file=>file, :target=>target, :type=>:copy)
+          thumbs(file: file, target: target, type: :copy, dir?: File.directory?(file))
           result = %w(true)
         end
       rescue Exception => e
@@ -238,7 +237,7 @@ module Fcfinder
         FileUtils.cp_r(file,target)
 
         #thumbs'a kopyasını gönder
-        thumbs(:file=>file, :target=>target, :type=>:copy)
+        thumbs(file: file, target: target, type: :copy, dir?: File.directory?(file))
         result = %w(true)
       rescue Exception => e
         result = ['false', '-1',e.to_s]
@@ -254,9 +253,10 @@ module Fcfinder
           result = %w(false 0)
         else
           #Kesme İşlemini Gerçekleştir
+          is_dir = File.directory?(file)
           FileUtils.mv(file,target)
           #thumbs'a kopyasını gönder
-          thumbs(:file=>file, :target=>target, :type=>:cut)
+          thumbs(file: file, target: target, type: :cut, dir?: is_dir)
           result = %w(true)
         end
       rescue Exception => e
@@ -268,9 +268,10 @@ module Fcfinder
     def cut!(file,target)
       begin
         #Kesme İşlemini Gerçekleştir
+        is_dir = File.directory?(file)
         FileUtils.mv(file,target)
         #thumbs'a kopyasını gönder
-        thumbs(:file=>file, :target=>target, :type=>:cut)
+        thumbs(file: file, target: target, type: :cut, dir?: is_dir)
         result = %w(true)
       rescue Exception => e
         result = ['false', '-1',e.to_s]
@@ -289,7 +290,8 @@ module Fcfinder
         if reg_file.nil? && !File.exist?(folder_name+'/'+file_name+' copy 1'+extension)
           FileUtils.cp_r(file_path, folder_name+'/'+file_name+' copy 1'+extension)
           #thumbs dosyaları ekle
-          thumbs(:file_path=>file_path,:file=>file_path,:type=>:duplicate,:folder_name=>folder_name,:file_name=>file_name,:extension=>extension)
+          thumbs(file_path: file_path, file: file_path, type: :duplicate, folder_name: folder_name, file_name:
+              file_name, extension: extension, dir?: File.directory?(file_path))
           result = %w(true)
         else
           #"file_name copy 1" şeklinde bir dosya adı var
@@ -300,7 +302,8 @@ module Fcfinder
           new_file_path = folder_name.chomp('/')+'/'+new_file_name
           FileUtils.cp_r(file_path, new_file_path)
           #thumbs'a kopyasını gönder
-          thumbs(:file_path=>file_path,:file=>file_path,:type=>:duplicate2,:new_file_path=>new_file_path)
+          thumbs(file_path: file_path, file: file_path,type: :duplicate2,
+                 new_file_path: new_file_path, dir?: File.directory?(file_path))
           result = %w(true)
         end
       rescue Exception => e
@@ -315,10 +318,11 @@ module Fcfinder
           folder_name = path.chomp(path.split('/').last).chomp('/')
           file_dest = "#{folder_name}/#{file_name}"
           return %w[false -1] if renamed_file_exist?(file_dest) && path.downcase != file_dest.downcase
-
+          is_dir = File.directory?(path)
           File.rename(path,"#{folder_name}/#{file_name}")
           #Send copy to # thumbs
-          thumbs(file: path, target: path, type: :rename, folder_name: folder_name, file_name: file_name )
+          thumbs(file: path, target: path, type: :rename, folder_name: folder_name,
+                 file_name: file_name, dir?: is_dir)
           result = %w[true]
         else
           #return false No File!
