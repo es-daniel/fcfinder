@@ -217,13 +217,13 @@ module Fcfinder
       begin
         file_path = File.join(target,file.split('/').last)
         if File.exist?(file_path)
-          #0 => Aynı Dosyadan Var
-          result = %w(false 0)
+          # 0: There is an equal file
+          result = file == file_path ? %w[true] : %w[false 0]
         else
-          #Kopyalama İşlemini Gerçekleştir
+          # Perform Copy
           FileUtils.cp_r(file,target)
           thumbs(file: file, target: target, type: :copy, dir?: File.directory?(file))
-          result = %w(true)
+          result = %w[true]
         end
       rescue Exception => e
         result =  ['false', '-1',e.to_s]
@@ -233,14 +233,11 @@ module Fcfinder
 
     def copy!(file,target)
       begin
-        return %w(true) if file == "#{target}/#{file.split('/').last}"
-
-        #Kopyalama İşlemini Gerçekleştir
-        FileUtils.cp_r(file,target)
-
-        #thumbs'a kopyasını gönder
+        # Perform Copy
+        FileUtils.cp_r(file, target)
+        # Send copy to thumbs
         thumbs(file: file, target: target, type: :copy, dir?: File.directory?(file))
-        result = %w(true)
+        result = %w[true]
       rescue Exception => e
         result = ['false', '-1',e.to_s]
       end
@@ -249,17 +246,17 @@ module Fcfinder
 
     def cut(file,target)
       begin
-        file_path = target.chomp('/')+'/'+file.split('/').last
+        file_path = target.chomp('/') + '/' + file.split('/').last
         if File.exist?(file_path) || File.directory?(file_path)
-          #0 => Aynı Dosyadan Var
-          result = %w(false 0)
+          # 0: There is an equal file
+          result = file == file_path ? %w[true] : %w[false 0]
         else
-          #Kesme İşlemini Gerçekleştir
+          # Perform Trimming
           is_dir = File.directory?(file)
           FileUtils.mv(file,target)
-          #thumbs'a kopyasını gönder
+          # Send cut to thumbs
           thumbs(file: file, target: target, type: :cut, dir?: is_dir)
-          result = %w(true)
+          result = %w[true]
         end
       rescue Exception => e
         result = ['false', '-1',e.to_s]
@@ -267,20 +264,25 @@ module Fcfinder
       result
     end
 
-    def cut!(file,target)
+    def cut!(file, target)
       begin
-        return %w(true) if file == "#{target}/#{file.split('/').last}"
-        
-        #Kesme İşlemini Gerçekleştir
+        file_path = "#{target}/#{file.split('/').last}"
+        # Perform Trimming
         is_dir = File.directory?(file)
+        delete_file_and_thumbs(file_path)
         FileUtils.mv(file, target)
-        #thumbs'a kopyasını gönder
+        # Send cut to thumbs
         thumbs(file: file, target: target, type: :cut, dir?: is_dir)
-        result = %w(true)
+        result = %w[true]
       rescue Exception => e
         result = ['false', '-1',e.to_s]
       end
       result
+    end
+
+    def delete_file_and_thumbs(path)
+      FileUtils.rm_rf(path)
+      FileUtils.rm_rf(path.sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')) if File.exist?(path.sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs'))
     end
 
     def duplicate(file)
@@ -345,12 +347,11 @@ module Fcfinder
     def delete!(path)
       begin
         if File.exist?(path)
-          FileUtils.rm_rf(path)
-          FileUtils.rm_rf(path.sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs')) if File.exist?(path.sub(@fcdir.chomp('/'), @fcdir.chomp('/')+'/.thumbs'))
-          result = %w(true)
+          delete_file_and_thumbs(path)
+          result = %w[true]
         else
           #return false Dosya Yok!
-          result = %w(false 0)
+          result = %w[false 0]
         end
       rescue Exception => e
         result = ['false', '-1',e.to_s]
