@@ -65,7 +65,7 @@
                 preview_size	        :	'Tamaño:',
                 preview_addres	        :	'Dirección:',
                 preview_url	            :	'Link:',
-                preview_cdate	        :	'Fecha de creación:',
+                preview_cdate	        :	'Creación:',
                 preview_mdate	        :	'Modificación:',
                 file_replace_h	        :	'Reemplazar archivo',
                 file_replace_content	:	'Archivo ya existe: "{0}" ¿Quieres cambiarlo?',
@@ -808,9 +808,6 @@
         });
 
 
-
-
-
         //Top Index
         $body.on("click",fcfinder_selector+" .right ul.widget li a.up_folder",function(){
             if (!$(this).hasClass("passive")){
@@ -832,7 +829,6 @@
             }
             return false;
         });
-
 
 
         //Show File Information
@@ -859,7 +855,6 @@
                         '<ul class="file_info">' +
                         '<li><span>'+opts.i18n.dialog.info_size+'</span>'+data.size+'</li>' +
                         '<li><span>'+opts.i18n.dialog.info_addres+'</span>'+data.path+'</li>' +
-                        '<li><span>'+opts.i18n.dialog.info_url+'</span><a target="_blank" href="//'+data.url+'">'+file.attr("data-name")+'</a></li>' +
                         '<li><span>'+opts.i18n.dialog.info_cdate+'</span>'+data.ctime+'</li>' +
                         '<li><span>'+opts.i18n.dialog.info_mdate+'</span>'+data.mtime+'</li>' +
                         '<li><span>'+opts.i18n.dialog.info_file_permission+'</span>'+permissions+'</li>' +
@@ -908,7 +903,6 @@
                             '<ul class="file_info">' +
                             '<li><span>'+opts.i18n.dialog.preview_size+'</span>'+data.size+'</li>' +
                             '<li><span>'+opts.i18n.dialog.preview_addres+'</span>'+data.path+'</li>' +
-                            '<li><span>'+opts.i18n.dialog.preview_url+'</span><a target="_blank" href="//'+data.url+'">'+file.attr("data-name")+'</a></li>' +
                             '<li><span>'+opts.i18n.dialog.preview_cdate+'</span>'+data.ctime+'</li>' +
                             '<li><span>'+opts.i18n.dialog.preview_mdate+'</span>'+data.mtime+'</li>' +
                             '</ul>' +
@@ -1149,8 +1143,6 @@
         });
 
 
-
-
         //File Listing by Name
         $body.on("click",fcfinder_selector+" .right ul.widget li a.name_sorter",function(){
             if (!$(this).hasClass("passive")){
@@ -1309,10 +1301,6 @@
             }
             return false;
         });
-
-
-
-
 
 
         //Settings Menu
